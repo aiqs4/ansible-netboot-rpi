@@ -1,0 +1,97 @@
+---
+
+- name: fetch root image
+  get_url:
+    url: "{{ image_root_url }}/{{ image_root_name }}"
+    checksum: "{{ image_root_chksum | default(None) }}"
+    dest: /root/
+    mode: 0600
+    validate_certs: False
+
+- name: fetch boot image
+  get_url:
+    url: "{{ image_boot_url }}/{{ image_boot_name }}"
+    checksum: "{{ image_boot_chksum | default(None) }}"
+    dest: /root/
+    mode: 0600
+    validate_certs: False
+
+- name: install base packages
+  apt: 
+    name: [ 'unzip' ]
+    state: present
+
+- name: create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    #mode: 0600
+  with_items:
+    - "{{ tftp_boot }}"
+    - "{{ nfs_root }}"
+
+- name: extract root to {{ nfs_root }}
+  unarchive:
+    src: "/root/{{ image_root_name }}"
+    dest: "{{ nfs_root }}"
+    remote_src: yes
+
+- name: extract boot to {{ tftp_boot }}
+  unarchive:
+    src: "/root/{{ image_boot_name }}"
+    dest: "{{ tftp_boot }}"
+    remote_src: yes
+
+
+
+## TODO
+# - name: "TODO: copy boot files to {{ tftp_boot }}"
+#   file:
+#     src: "{{ nfs_root }}/boot"
+#     dst: "{{ tftp_boot }}"
+
+- name: install packages
+  apt: 
+    name: [ 'dnsmasq', 'rpcbind', 'nfs-kernel-server' ]
+    state: present
+  with_items:
+    - dnsmasq
+    - rpcbind
+    - nfs-kernel-server
+
+## TODO
+# - name: "TODO: configure client fstab"
+#   lineinfile: 
+#     path: "{{ nfs_root }}/etc/fstab"
+#     regexp: "^{{ server_ip }}:{{ tftp_boot }}/boot"
+#     line: "{{ server_ip }}:{{ tftp_boot }}/boot / nfs defaults,vers=3 0 0"
+
+- name: configure exports
+  lineinfile:
+    path: "/etc/exports"
+    regexp: "^{{ nfs_root }}"
+    line: "{{ nfs_root }} *(rw,sync,no_subtree_check,no_root_squash)"
+
+- name: configure dhcp (dnsmasq.conf)
+  template:
+    src: dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
+    mode: 0644
+    backup: yes
+  # notify:
+  #   - restart dnsmasq
+
+
+- name: force restart services
+  service: name={{ item }} state=restarted
+  with_items:
+    - dnsmasq
+    - rpcbind
+    # - nfs-kernel-server
+  ignore_errors: true
+
+# TODO
+# - name: enable rpcbind, dnsmasq & nfs-server
+# - name: generate client ssh keys
+# - name: configure network
+# - name: configure resolved

@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  author: Sascha Dewald
+  description: setup rpi netboot server
+  license: BSD
+  min_ansible_version: 0.1
+  #
+  # Below are all platforms currently available. 
+  #
+  platforms:
+  - name: Debian
+    version:
+    - buster
+  - name: Ubuntu
+    versions:
+    - bionic
+    - eoan
+  #
+  # Below are all categories currently available.
+  #
+  galaxy_tags:
+  - system

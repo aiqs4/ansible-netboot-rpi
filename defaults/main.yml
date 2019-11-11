@@ -1,0 +1,25 @@
+---
+
+server_ip: 10.0.3.10
+server_subnet: 16
+server_dns: 10.0.0.1
+server_gateway: 10.0.0.1
+
+dhcp_range: 10.0.4.255
+
+tftp_boot: /srv/nfs/raspbian/root/boot
+nfs_root: /srv/nfs/raspbian/root
+
+image_boot_url: 'http://downloads.raspberrypi.org/raspbian_lite'
+image_boot_name: 'boot.tar.xz'
+image_boot_chksum: 'sha256:79774d2dd84e30673c716ae2b3dbd3c08e0ee0a9b2c7ec7592d8202596bf3b91'
+
+image_root_url: 'http://downloads.raspberrypi.org/raspbian_lite'
+image_root_name: 'root.tar.xz'
+image_root_chksum: 'sha256:e9a9acdfffa315df4fac1541ebfa07c555f79ccfe87d6d3d86e63b53f2edb374'
+
+
+# image_url: 'http://cdimage.ubuntu.com/releases/19.10/release'
+# image_name: 'ubuntu-19.10-preinstalled-server-arm64+raspi3.img.xz'
+# image_chksum: None
+
